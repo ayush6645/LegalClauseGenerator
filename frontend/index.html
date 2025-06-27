@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Legal Clause Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.2);
+            --glass-dark: rgba(31, 41, 55, 0.5);
+            --glass-light-bg: rgba(255, 255, 255, 1);
+            --glass-dark-bg: rgba(31, 41, 55, 1);
+            /* New variables for button background */
+            --button-light-bg: rgba(59, 130, 246, 0.1); /* blue-500 with opacity */
+            --button-dark-bg: rgba(147, 197, 253, 0.1); /* blue-300 with opacity */
+            --suggestions-bg-light: #ffffff;
+            --suggestions-bg-dark: #2d3748; /* gray-800 */
+            --suggestions-text-light: #1f2937; /* gray-900 */
+            --suggestions-text-dark: #e5e7eb; /* gray-200 */
+            --suggestions-hover-light: #e0f2fe; /* blue-50 */
+            --suggestions-hover-dark: #4a5568; /* gray-700 */
+            --input-border-light: #e5e7eb; /* gray-200 */
+            --input-border-dark: #4b5563; /* gray-600 */
+            --input-focus-border-light: #3b82f6; /* blue-500 */
+            --input-focus-border-dark: #60a5fa; /* blue-400 */
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Glassmorphism containers */
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); /* For Safari support */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-dark {
+            background: var(--glass-dark);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px); /* For Safari support */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Input Group container for label and input */
+        .input-group {
+            position: relative;
+            margin-top: 1.75rem;
+        }
+
+        /* Inputs, textarea and select styling */
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 1rem 0.75rem;
+            border: 1px solid var(--input-border-light); /* Use variable */
+            border-radius: 1.5rem;
+            background: transparent; /* Make textarea background transparent */
+            outline: none;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+            color: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: text; /* Change to text cursor for textarea */
+            position: relative; /* Ensure textarea is above ghost text */
+            z-index: 10;
+        }
+
+        [data-theme="dark"] .input-group input,
+        [data-theme="dark"] .input-group textarea,
+        [data-theme="dark"] .input-group select {
+            border-color: var(--input-border-dark); /* Dark theme border */
+        }
+
+        /* Focus styles for inputs/textareas */
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            border-color: var(--input-focus-border-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Focus ring */
+        }
+
+        [data-theme="dark"] .input-group input:focus,
+        [data-theme="dark"] .input-group textarea:focus,
+        [data-theme="dark"] .input-group select:focus {
+            border-color: var(--input-focus-border-dark);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+        }
+
+
+        /* Option styles inside select */
+        .input-group select option {
+            color: #333;
+            background-color: #fff;
+        }
+
+        [data-theme="dark"] .input-group select option {
+            color: #eee;
+            background-color: #333;
+        }
+
+        /* Selected option styling when focused */
+        .input-group select:focus option:checked {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        /* Floating label styles */
+        .input-group label {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            background-color: inherit;
+            padding: 0 0.3rem;
+            font-size: 1rem;
+            color: #6b7280;
+            z-index: 20; /* Ensure label is above other elements */
+        }
+
+        /* Label float and color on focus or filled */
+        .input-group input:focus~label,
+        .input-group textarea:focus~label,
+        .input-group select:focus~label,
+        .input-group input:not(:placeholder-shown)~label,
+        .input-group textarea:not(:placeholder-shown)~label,
+        .input-group select:valid~label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #3b82f6;
+            background: white;
+            z-index: 20;
+        }
+
+        [data-theme="dark"] .input-group label {
+            background-color: #1f2937;
+        }
+
+        /* Ripple effect container */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ripple effect span */
+        .ripple span.ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            background-color: rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .type-text {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            display: block;
+        }
+
+        /* Clause container styles */
+        .fade-in {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            box-sizing: border-box;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Clause content with expand/collapse and gradient */
+        .clause-content {
+            max-height: 150px;
+            overflow: hidden;
+            position: relative;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .clause-content::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to top, var(--glass-light-bg), transparent);
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        [data-theme="dark"] .clause-content::after {
+            background: linear-gradient(to top, var(--glass-dark-bg), transparent);
+        }
+
+        .clause-content.expanded {
+            max-height: 5000px;
+            overflow: visible;
+        }
+
+        .clause-content.expanded::after {
+            opacity: 0;
+        }
+
+        /* Read More/Read Less Button Styling */
+        .expand-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            margin-top: 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Light theme button styles */
+        [data-theme="light"] .expand-toggle {
+            background-color: var(--button-light-bg);
+            color: #3b82f6;
+        }
+
+        [data-theme="light"] .expand-toggle:hover {
+            background-color: rgba(59, 130, 246, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Dark theme button styles */
+        [data-theme="dark"] .expand-toggle {
+            background-color: var(--button-dark-bg);
+            color: #93c5fd;
+        }
+
+        [data-theme="dark"] .expand-toggle:hover {
+            background-color: rgba(147, 197, 253, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+    </style>
+</head>
+
+<body
+    class="bg-gradient-to-r from-blue-50 to-purple-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 min-h-screen transition duration-300">
+    <div class="flex flex-col items-center justify-center px-4 py-10">
+        <div class="w-full max-w-4xl text-center mb-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-4xl font-bold text-blue-700 dark:text-blue-400 tracking-tight">
+                    ⚖️ Legal Clause Generator
+                </h1>
+                <button id="toggleTheme"
+                    class="text-sm bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full hover:shadow-md transition flex items-center">
+                    <span id="themeIcon">🌗</span>
+                </button>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">Craft beautiful legal clauses using the power of AI.
+            </p>
+        </div>
+
+        <div class="w-full max-w-4xl p-8 rounded-3xl shadow-2xl glass dark:glass-dark">
+            <form id="clauseForm" class="space-y-6">
+                <div class="input-group">
+                    <textarea id="prompt" required placeholder=" " rows="3" autocomplete="off"></textarea>
+                    <label for="prompt">Enter your clause prompt</label>
+                </div>
+
+                <div class="input-group">
+                    <select id="clause_type" required>
+                        <option value="" disabled selected hidden></option>
+                        <option value="Confidentiality">Confidentiality</option>
+                        <option value="Indemnity">Indemnity</option>
+                        <option value="Termination">Termination</option>
+                    </select>
+                    <label for="clause_type">Clause Type</label>
+                </div>
+
+                <div class="input-group">
+                    <textarea id="context" placeholder=" " rows="2"></textarea>
+                    <label for="context">Context (optional)</label>
+                </div>
+
+                <button type="submit" id="genBtn"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-2xl transition-all duration-300 shadow-lg ripple">
+                    🚀 Generate Clause
+                </button>
+            </form>
+
+            <div id="loading" class="text-center mt-6 text-blue-500 font-semibold hidden">⏳ Generating clause...</div>
+            <div id="results" class="mt-8 space-y-6"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("clauseForm");
+        const loading = document.getElementById("loading");
+        const results = document.getElementById("results");
+        const toggleTheme = document.getElementById("toggleTheme");
+        const themeIcon = document.getElementById("themeIcon");
+        const btn = document.getElementById("genBtn");
+
+        function formatText(text) {
+            return text.replace(/\n/g, "<br>")
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                .replace(/\*(.*?)\*/g, "<em>$1</em>");
+        }
+
+        btn.addEventListener("click", (e) => {
+            const circle = document.createElement("span");
+            circle.classList.add("ripple-effect");
+            const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - btn.offsetLeft - diameter / 2}px`;
+            circle.style.top = `${e.clientY - btn.offsetTop - diameter / 2}px`;
+            const ripple = btn.getElementsByClassName("ripple-effect")[0];
+            if (ripple) ripple.remove();
+            btn.appendChild(circle);
+        });
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            results.innerHTML = "";
+            loading.classList.remove("hidden");
+
+            const payload = {
+                prompt: document.getElementById("prompt").value,
+                clause_type: document.getElementById("clause_type").value,
+                context: document.getElementById("context").value,
+            };
+
+            try {
+                const res = await fetch("http://127.0.0.1:8000/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                const response = await res.json();
+                loading.classList.add("hidden");
+
+                const data = response.suggestions || [];
+
+                data.forEach((clause, i) => {
+                    const div = document.createElement("div");
+                    div.className = "fade-in bg-white dark:bg-gray-700 p-4 shadow text-lg leading-relaxed";
+
+                    const formattedClause = formatText(clause);
+
+                    div.innerHTML = `
+                        <span class="font-bold text-blue-500 dark:text-blue-300">Suggestion ${i + 1}:</span>
+                        <div class="clause-content">
+                            <p class="type-text mt-2">${formattedClause}</p>
+                        </div>
+                        <button class="expand-toggle text-sm">Read More</button>
+                    `;
+
+                    results.appendChild(div);
+
+                    const toggleButton = div.querySelector(".expand-toggle");
+                    const contentDiv = div.querySelector(".clause-content");
+
+                    toggleButton.addEventListener("click", () => {
+                        const allContents = document.querySelectorAll(".clause-content");
+                        const allToggles = document.querySelectorAll(".expand-toggle");
+
+                        allContents.forEach((el) => {
+                            if (el !== contentDiv && el.classList.contains("expanded")) {
+                                el.classList.remove("expanded");
+                                void el.offsetWidth;
+                            }
+                        });
+
+                        allToggles.forEach((el) => {
+                            if (el !== toggleButton) el.textContent = "Read More";
+                        });
+
+                        const isExpanded = contentDiv.classList.toggle("expanded");
+                        toggleButton.textContent = isExpanded ? "Read Less" : "Read More";
+                    });
+                });
+            } catch (err) {
+                loading.classList.add("hidden");
+                results.innerHTML = `<p class='text-red-600 text-center'>Error: ${err.message}</p>`;
+            }
+        });
+
+        toggleTheme.addEventListener("click", () => {
+            const html = document.documentElement;
+            const current = html.getAttribute("data-theme");
+            const next = current === "light" ? "dark" : "light";
+            html.setAttribute("data-theme", next);
+            document.body.classList.toggle("dark");
+            themeIcon.innerText = next === "light" ? "🌗" : "☀️";
+        });
+    </script>
+
+</body>
+</html>
