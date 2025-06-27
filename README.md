@@ -150,20 +150,6 @@ This Legal Clause Generator is particularly useful in scenarios where you need t
 
 ---
 
-## 🖼️ Screenshots
-
-*(Replace these placeholders with actual screenshots of your application)*
-
-| Light Theme - Main Interface | Dark Theme - Main Interface |
-| :--------------------------: | :-------------------------: |
-| ![Light Theme Screenshot](path/to/your/light_theme_screenshot.png) | ![Dark Theme Screenshot](path/to/your/dark_theme_screenshot.png) |
-
-| Generated Clauses - Collapsed | Generated Clauses - Expanded |
-| :--------------------------: | :-------------------------: |
-| ![Collapsed Clause Screenshot](path/to/your/collapsed_clause_screenshot.png) | ![Expanded Clause Screenshot](path/to/your/expanded_clause_screenshot.png) |
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
