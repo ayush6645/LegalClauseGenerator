@@ -66,7 +66,7 @@ Follow these steps to get your Legal Clause Generator up and running on your loc
 
 1.  **Clone the repository (or extract your project files):**
     ```bash
-    git clone <your_repo_url>
+    git clone (https://github.com/ayush6645/LegalClauseGenerator)
     cd LegalClauseGenerator
     ```
     (If you don't have a Git repo, just ensure your `backend` folder and `words_alpha.txt` are in the main project directory.)
